@@ -13,7 +13,11 @@ public class Tarjeta
 
     public decimal Saldo {get; private set; }
 
-    public Tarjeta(decimal saldoInicial = 0)
+    public Tarjeta() : this(0)
+    {
+    }
+
+    public Tarjeta(decimal saldoInicial)
     {
         if (saldoInicial < 0)
         {
