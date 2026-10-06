@@ -64,12 +64,75 @@ public class TarjetaTest
     [Test]
     public void DescontarSaldo_ConSaldoInsuficiente_RetornaFalseYNoModificaSaldo()
     {
+        var tarjeta = new Tarjeta();
+        tarjeta.DescontarSaldo(1580m); // Queda en -1580m
+
+        // Intentar otro descuento superaría el límite negativo (-1580m - 1580m = -3160m < -2000m)
+        bool resultado = tarjeta.DescontarSaldo(1580m);
+
+        Assert.That(resultado, Is.False);
+        Assert.That(tarjeta.Saldo, Is.EqualTo(-1580m));
+    }
+
+    [Test]
+    public void DescontarSaldo_ConSaldoInsuficiente_PermiteViajePlusYSaldoQuedaNegativo()
+    {
         var tarjeta = new Tarjeta(1000m);
 
         bool resultado = tarjeta.DescontarSaldo(1580m);
 
+        Assert.That(resultado, Is.True);
+        Assert.That(tarjeta.Saldo, Is.EqualTo(-580m));
+        Assert.That(tarjeta.Saldo, Is.GreaterThanOrEqualTo(Tarjeta.LimiteNegativo));
+    }
+
+    [Test]
+    public void DescontarSaldo_SuperandoLimiteNegativo_RetornaFalseYNoModificaSaldo()
+    {
+        var tarjeta = new Tarjeta();
+        tarjeta.DescontarSaldo(1580m); // Saldo en -1580m
+
+        bool resultado = tarjeta.DescontarSaldo(1580m);
+
         Assert.That(resultado, Is.False);
-        Assert.That(tarjeta.Saldo, Is.EqualTo(1000m));
+        Assert.That(tarjeta.Saldo, Is.EqualTo(-1580m));
+    }
+
+    [Test]
+    public void CargarSaldo_ConDeudaNegativa_DescuentaDeudaYActualizaSaldoCorrectamente()
+    {
+        var tarjeta = new Tarjeta();
+        tarjeta.DescontarSaldo(1580m); // Saldo = -1580m
+
+        bool resultado = tarjeta.CargarSaldo(2000m);
+
+        Assert.That(resultado, Is.True);
+        Assert.That(tarjeta.Saldo, Is.EqualTo(420m));
+    }
+
+    [Test]
+    public void DescontarSaldo_ViajesPlus_SeIncrementaConCadaViajePlusOtorgado()
+    {
+        var tarjeta = new Tarjeta(1000m);
+        Assert.That(tarjeta.ViajesPlus, Is.EqualTo(0));
+
+        bool primerViaje = tarjeta.DescontarSaldo(1580m);
+        Assert.That(primerViaje, Is.True);
+        Assert.That(tarjeta.ViajesPlus, Is.EqualTo(1));
+
+        bool segundoViaje = tarjeta.DescontarSaldo(500m);
+        Assert.That(segundoViaje, Is.True);
+        Assert.That(tarjeta.ViajesPlus, Is.EqualTo(2));
+    }
+
+    [Test]
+    public void DescontarSaldo_ConSaldoSuficiente_NoIncrementaViajesPlus()
+    {
+        var tarjeta = new Tarjeta(5000m);
+
+        tarjeta.DescontarSaldo(1580m);
+
+        Assert.That(tarjeta.ViajesPlus, Is.EqualTo(0));
     }
 
     [Test]

@@ -3,6 +3,7 @@ namespace TarjetaSube;
 public class Tarjeta
 {
     public const decimal LimiteSaldo = 40000m;
+    public const decimal LimiteNegativo = -2000m;
     public static readonly IReadOnlySet<decimal>
  CargasAceptadas = new HashSet<decimal>
     {
@@ -11,7 +12,8 @@ public class Tarjeta
     
     public int Id { get; set;}
 
-    public decimal Saldo {get; private set; }
+    public decimal Saldo { get; private set; }
+    public int ViajesPlus { get; private set; }
 
     public Tarjeta() : this(0)
     {
@@ -46,14 +48,18 @@ public class Tarjeta
         return true;
     }
 
-    public bool DescontarSaldo (decimal monto)
+    public bool DescontarSaldo(decimal monto)
     {
-        if (monto <= 0 || Saldo < monto)
+        if (monto <= 0 || Saldo - monto < LimiteNegativo)
         {
             return false;
         }
 
         Saldo -= monto;
+        if (Saldo < 0)
+        {
+            ViajesPlus++;
+        }
         return true;
     }
 }

@@ -53,28 +53,30 @@ public class ColectivoTest
     public void PagarCon_ConSaldoInsuficiente_RetornaNullYNoModificaSaldo()
     {
         var colectivo = new Colectivo("102 Roja");
-        var tarjeta = new Tarjeta(1000m);
+        var tarjeta = new Tarjeta();
+        colectivo.pagarCon(tarjeta); // 1er viaje plus, saldo queda en -1580m
 
-        var boleto = colectivo.pagarCon(tarjeta);
+        // El segundo viaje requeriría -1580m - 1580m = -3160m < LimiteNegativo (-2000m)
+        var segundoBoleto = colectivo.pagarCon(tarjeta);
 
-        Assert.That(boleto, Is.Null);
-        Assert.That(tarjeta.Saldo, Is.EqualTo(1000m));
+        Assert.That(segundoBoleto, Is.Null);
+        Assert.That(tarjeta.Saldo, Is.EqualTo(-1580m));
     }
 
     [Test]
-    public void PagarCon_ConSaldoCero_RetornaNullYNoModificaSaldo()
+    public void PagarCon_ConSaldoCero_PermiteViajePlusYSaldoQuedaNegativo()
     {
         var colectivo = new Colectivo("K");
         var tarjeta = new Tarjeta();
 
         var boleto = colectivo.pagarCon(tarjeta);
 
-        Assert.That(boleto, Is.Null);
-        Assert.That(tarjeta.Saldo, Is.EqualTo(0m));
+        Assert.That(boleto, Is.Not.Null);
+        Assert.That(tarjeta.Saldo, Is.EqualTo(-1580m));
     }
 
     [Test]
-    public void PagarCon_DosViajesConsecutivos_SegundoFallaPorSaldoInsuficiente()
+    public void PagarCon_ViajesConsecutivos_TercerViajeFallaPorSuperarLimiteNegativo()
     {
         var colectivo = new Colectivo("115");
         var tarjeta = new Tarjeta(2000m);
@@ -84,8 +86,12 @@ public class ColectivoTest
         Assert.That(tarjeta.Saldo, Is.EqualTo(420m));
 
         var segundoBoleto = colectivo.pagarCon(tarjeta);
-        Assert.That(segundoBoleto, Is.Null);
-        Assert.That(tarjeta.Saldo, Is.EqualTo(420m));
+        Assert.That(segundoBoleto, Is.Not.Null);
+        Assert.That(tarjeta.Saldo, Is.EqualTo(-1160m));
+
+        var tercerBoleto = colectivo.pagarCon(tarjeta);
+        Assert.That(tercerBoleto, Is.Null);
+        Assert.That(tarjeta.Saldo, Is.EqualTo(-1160m));
     }
 
     [Test]
