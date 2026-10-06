@@ -73,6 +73,29 @@ public class TarjetaTest
     }
 
     [Test]
+    public void DescontarSaldo_ConSaldoExacto_DescuentaYRetornaTrueYSaldoQuedaEnCero()
+    {
+        var tarjeta = new Tarjeta(1580m);
+
+        bool resultado = tarjeta.DescontarSaldo(1580m);
+
+        Assert.That(resultado, Is.True);
+        Assert.That(tarjeta.Saldo, Is.EqualTo(0m));
+    }
+
+    [TestCase(0)]
+    [TestCase(-100)]
+    public void DescontarSaldo_ConMontoCeroONegativo_RetornaFalseYNoModificaSaldo(decimal monto)
+    {
+        var tarjeta = new Tarjeta(1000m);
+
+        bool resultado = tarjeta.DescontarSaldo(monto);
+
+        Assert.That(resultado, Is.False);
+        Assert.That(tarjeta.Saldo, Is.EqualTo(1000m));
+    }
+
+    [Test]
     public void Constructor_ConSaldoNegativo_LanzaExcepcion()
     {
         Assert.Throws<ArgumentOutOfRangeException>(() => new Tarjeta(-500m));

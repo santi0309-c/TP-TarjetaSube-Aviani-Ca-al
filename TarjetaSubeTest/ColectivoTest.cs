@@ -89,6 +89,23 @@ public class ColectivoTest
     }
 
     [Test]
+    public void PagarCon_MultiplesViajesConsecutivosConSaldoSuficiente_DescuentaSaldoAcumulado()
+    {
+        var colectivo = new Colectivo("102 Roja");
+        var tarjeta = new Tarjeta(5000m);
+
+        var primerBoleto = colectivo.PagarCon(tarjeta);
+        Assert.That(primerBoleto, Is.Not.Null);
+        Assert.That(tarjeta.Saldo, Is.EqualTo(3420m));
+        Assert.That(primerBoleto!.SaldoRestante, Is.EqualTo(3420m));
+
+        var segundoBoleto = colectivo.PagarCon(tarjeta);
+        Assert.That(segundoBoleto, Is.Not.Null);
+        Assert.That(tarjeta.Saldo, Is.EqualTo(1840m));
+        Assert.That(segundoBoleto!.SaldoRestante, Is.EqualTo(1840m));
+    }
+
+    [Test]
     public void PagarCon_TarjetaNull_RetornaNull()
     {
         var colectivo = new Colectivo("102");
