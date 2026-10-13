@@ -24,12 +24,14 @@ public class Colectivo
             return null;
         }
 
-        if (!tarjeta.DescontarSaldo(TarifaBasica))
+        decimal tarifa = tarjeta.CalcularPrecio(TarifaBasica);
+
+        if (!tarjeta.DescontarSaldo(tarifa))
         {
             return null;
         }
 
-        return new Boleto(Linea, TarifaBasica, tarjeta.Saldo, tarjeta.Id);
+        return new Boleto(Linea, tarifa, tarjeta.Saldo, tarjeta.Id);
     }
 
     public Boleto? pagarCon(Tarjeta tarjeta) => PagarCon(tarjeta);

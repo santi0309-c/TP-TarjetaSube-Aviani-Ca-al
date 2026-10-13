@@ -84,5 +84,6 @@ public class TarjetaSubeDbContextTest
         Assert.That(context.Tarjetas, Is.Not.Null);
         Assert.That(context.Colectivos, Is.Not.Null);
         Assert.That(context.Boletos, Is.Not.Null);
+        Assert.That(context.TarjetasTipo, Is.Not.Null);
     }
 }

@@ -16,6 +16,7 @@ public class TarjetaSubeDbContext : DbContext
     public DbSet<Tarjeta> Tarjetas { get; set; } = null!;
     public DbSet<Colectivo> Colectivos { get; set; } = null!;
     public DbSet<Boleto> Boletos { get; set; } = null!;
+    public DbSet<TarjetaTipo> TarjetasTipo { get; set; } = null!;
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {

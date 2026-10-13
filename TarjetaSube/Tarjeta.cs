@@ -13,11 +13,15 @@ public class Tarjeta
 
     public decimal Saldo {get; private set; }
 
-    public Tarjeta() : this(0)
+    public int TarjetaTipoId { get; set; }
+
+    public TarjetaTipo? TarjetaTipo { get; set; }
+
+    public Tarjeta() : this(0, null)
     {
     }
 
-    public Tarjeta(decimal saldoInicial)
+    public Tarjeta(decimal saldoInicial, TarjetaTipo? tarjetaTipo = null)
     {
         if (saldoInicial < 0)
         {
@@ -29,6 +33,20 @@ public class Tarjeta
         }
 
         Saldo = saldoInicial;
+        TarjetaTipo = tarjetaTipo;
+        if (tarjetaTipo != null)
+        {
+            TarjetaTipoId = tarjetaTipo.Id;
+        }
+    }
+
+    public Tarjeta(TarjetaTipo tarjetaTipo) : this(0, tarjetaTipo)
+    {
+    }
+
+    public decimal CalcularPrecio(decimal tarifaBase)
+    {
+        return TarjetaTipo != null ? TarjetaTipo.CalcularPrecio(tarifaBase) : tarifaBase;
     }
 
     public bool CargarSaldo(decimal monto)
@@ -46,9 +64,19 @@ public class Tarjeta
         return true;
     }
 
-    public bool DescontarSaldo (decimal monto)
+    public bool DescontarSaldo(decimal monto)
     {
-        if (monto <= 0 || Saldo < monto)
+        if (monto < 0)
+        {
+            return false;
+        }
+
+        if (monto == 0)
+        {
+            return true;
+        }
+
+        if (Saldo < monto)
         {
             return false;
         }
