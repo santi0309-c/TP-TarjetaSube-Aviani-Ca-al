@@ -82,30 +82,32 @@ public class Iteracion3ParteATest
     }
 
     [Test]
-    public void Boleto_ConSaldoNegativoPrevio_InformaTotalAbonadoSuperiorATarifaNormal()
+    public void Boleto_ConSaldoNegativoPrevio_InformaTotalAbonadoSuperiorAlCostoDeSuViaje()
     {
-        // Tarjeta con saldo inicial $1380.
-        // Al primer viaje de $1580, el saldo queda en -$200 (saldo negativo).
-        var tarjeta = new Tarjeta(1380m) { Id = 99 };
+        // Con tarifa básica $2150 y medio boleto $1075:
+        // Tarjeta de medio boleto con saldo inicial $1000.
+        // Al primer viaje de $1075, el saldo queda en -$75 (saldo negativo).
+        var tipoMedio = new TarjetaTipo(TarjetaTipo.NombreMedioBoleto, 0.5m);
+        var tarjeta = new Tarjeta(1000m, tipoMedio) { Id = 99 };
         var colectivo = new Colectivo("115");
         var fecha1 = new DateTime(2026, 10, 20, 8, 0, 0);
         var fecha2 = new DateTime(2026, 10, 20, 12, 0, 0);
 
         var primerBoleto = colectivo.PagarCon(tarjeta, fecha1);
         Assert.That(primerBoleto, Is.Not.Null);
-        Assert.That(tarjeta.Saldo, Is.EqualTo(-200m));
-        Assert.That(primerBoleto!.TotalAbonado, Is.EqualTo(Colectivo.TarifaBasica));
+        Assert.That(tarjeta.Saldo, Is.EqualTo(-75m));
+        Assert.That(primerBoleto!.TotalAbonado, Is.EqualTo(Colectivo.TarifaBasica / 2m));
 
-        // Segundo viaje: la tarjeta ya tenía saldo negativo (-$200).
-        // El viaje cuesta $1580, quedando el nuevo saldo en -$1780 (dentro del límite de -$2000).
-        // El boleto deberá informar el monto total abonado: tarifa ($1580) + deuda previa ($200) = $1780.
+        // Segundo viaje: la tarjeta ya tenía saldo negativo (-$75).
+        // El viaje cuesta $1075, quedando el nuevo saldo en -$1150 (dentro del límite de -$2000).
+        // El boleto deberá informar el monto total abonado: tarifa ($1075) + deuda previa ($75) = $1150.
         var segundoBoleto = colectivo.PagarCon(tarjeta, fecha2);
 
         Assert.That(segundoBoleto, Is.Not.Null);
-        Assert.That(tarjeta.Saldo, Is.EqualTo(-1780m));
-        Assert.That(segundoBoleto!.TotalAbonado, Is.EqualTo(1780m));
-        Assert.That(segundoBoleto.TotalAbonado, Is.GreaterThan(Colectivo.TarifaBasica),
-            "El total abonado debe ser superior a la tarifa normal por incluir el saldo negativo anterior");
+        Assert.That(tarjeta.Saldo, Is.EqualTo(-1150m));
+        Assert.That(segundoBoleto!.TotalAbonado, Is.EqualTo(1150m));
+        Assert.That(segundoBoleto.TotalAbonado, Is.GreaterThan(Colectivo.TarifaBasica / 2m),
+            "El total abonado debe ser superior al costo del viaje por incluir el saldo negativo anterior");
     }
 
     // ═════════════════════════════════════════════════════════════════════════
