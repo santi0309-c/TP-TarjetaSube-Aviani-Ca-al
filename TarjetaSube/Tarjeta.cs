@@ -21,6 +21,9 @@ public class Tarjeta
 
     public TarjetaTipo? TarjetaTipo { get; set; }
 
+    public bool EsNormal => TarjetaTipo == null || TarjetaTipo.EsNormal;
+    public bool EsFranquicia => TarjetaTipo != null && TarjetaTipo.EsFranquicia;
+
     private readonly List<DateTime> _viajes = new();
 
     [NotMapped]
@@ -58,6 +61,21 @@ public class Tarjeta
 
     public bool PuedeViajar(DateTime fecha)
     {
+        if (EsFranquicia)
+        {
+            bool esDiaHabil = fecha.DayOfWeek >= DayOfWeek.Monday && fecha.DayOfWeek <= DayOfWeek.Friday;
+            if (!esDiaHabil)
+            {
+                return false;
+            }
+
+            TimeSpan hora = fecha.TimeOfDay;
+            if (hora < TimeSpan.FromHours(6) || hora > TimeSpan.FromHours(22))
+            {
+                return false;
+            }
+        }
+
         if (TarjetaTipo != null && TarjetaTipo.EsMedioBoleto && UltimoViaje.HasValue)
         {
             if (fecha - UltimoViaje.Value < TimeSpan.FromMinutes(5))
@@ -75,6 +93,11 @@ public class Tarjeta
         return _viajes.Count(v => v.Date == fecha.Date);
     }
 
+    public int ContarViajesEnMes(DateTime fecha)
+    {
+        return _viajes.Count(v => v.Year == fecha.Year && v.Month == fecha.Month);
+    }
+
     public void RegistrarViaje(DateTime fecha)
     {
         _viajes.Add(fecha);
@@ -84,12 +107,21 @@ public class Tarjeta
 
     public decimal CalcularPrecio(decimal tarifaBase, DateTime fecha)
     {
-        if (TarjetaTipo == null)
+        if (EsNormal)
         {
-            return tarifaBase;
+            int viajesMes = ContarViajesEnMes(fecha);
+            if (viajesMes < 29)
+            {
+                return tarifaBase; // Viajes 1 al 29: Tarifa normal
+            }
+            if (viajesMes < 79)
+            {
+                return tarifaBase * 0.80m; // Viajes 30 al 79: 20% de descuento
+            }
+            return tarifaBase * 0.75m; // Viajes 80 en adelante: 25% de descuento
         }
 
-        if (TarjetaTipo.EsMedioBoleto)
+        if (TarjetaTipo != null && TarjetaTipo.EsMedioBoleto)
         {
             int viajesHoy = ContarViajesEnFecha(fecha);
             if (viajesHoy >= 2)
@@ -99,7 +131,7 @@ public class Tarjeta
             return TarjetaTipo.CalcularPrecio(tarifaBase);
         }
 
-        if (TarjetaTipo.EsFranquiciaCompleta)
+        if (TarjetaTipo != null && TarjetaTipo.EsFranquiciaCompleta)
         {
             int viajesHoy = ContarViajesEnFecha(fecha);
             if (viajesHoy >= 2)
@@ -109,7 +141,7 @@ public class Tarjeta
             return 0m;
         }
 
-        return TarjetaTipo.CalcularPrecio(tarifaBase);
+        return TarjetaTipo != null ? TarjetaTipo.CalcularPrecio(tarifaBase) : tarifaBase;
     }
 
     public decimal CalcularPrecio(decimal tarifaBase) => CalcularPrecio(tarifaBase, DateTime.Now);

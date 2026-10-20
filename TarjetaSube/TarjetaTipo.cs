@@ -21,6 +21,12 @@ public class TarjetaTipo
             Nombre.Contains("Educativo", StringComparison.OrdinalIgnoreCase)
         );
 
+    public bool EsNormal =>
+        string.IsNullOrEmpty(Nombre) ||
+        Nombre.Equals(NombreNormal, StringComparison.OrdinalIgnoreCase);
+
+    public bool EsFranquicia => !EsNormal;
+
     public TarjetaTipo() { }
 
     public TarjetaTipo(string nombre, decimal multiplicador)

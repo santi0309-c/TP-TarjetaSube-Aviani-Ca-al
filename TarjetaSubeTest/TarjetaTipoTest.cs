@@ -6,6 +6,8 @@ using TarjetaSube;
 [TestFixture]
 public class TarjetaTipoTest
 {
+    private static readonly DateTime FechaHabil = new DateTime(2026, 10, 20, 10, 0, 0); // Martes 10:00 hs
+
     [Test]
     public void FranquiciaCompleta_SiemprePuedePagar_InclusoConSaldoCero()
     {
@@ -13,7 +15,7 @@ public class TarjetaTipoTest
         var tarjeta = new Tarjeta(0m, tipoFranquiciaCompleta) { Id = 10 };
         var colectivo = new Colectivo("144 Negra");
 
-        var boleto = colectivo.pagarCon(tarjeta);
+        var boleto = colectivo.PagarCon(tarjeta, FechaHabil);
 
         Assert.That(boleto, Is.Not.Null);
         Assert.That(boleto!.MontoPagado, Is.EqualTo(0m));
@@ -28,8 +30,8 @@ public class TarjetaTipoTest
         var tarjeta = new Tarjeta(2000m, tipoMedioBoleto) { Id = 20 };
         var colectivo = new Colectivo("102 Roja");
 
-        decimal tarifaEsperada = Colectivo.TarifaBasica / 2m; // 790m
-        var boleto = colectivo.pagarCon(tarjeta);
+        decimal tarifaEsperada = Colectivo.TarifaBasica / 2m; // 1075m
+        var boleto = colectivo.PagarCon(tarjeta, FechaHabil);
 
         Assert.That(boleto, Is.Not.Null);
         Assert.That(boleto!.MontoPagado, Is.EqualTo(tarifaEsperada));
@@ -44,7 +46,7 @@ public class TarjetaTipoTest
         var tarjeta = new Tarjeta(100m, tipoGratuito);
         var colectivo = new Colectivo("K");
 
-        var boleto = colectivo.pagarCon(tarjeta);
+        var boleto = colectivo.PagarCon(tarjeta, FechaHabil);
 
         Assert.That(boleto, Is.Not.Null);
         Assert.That(boleto!.MontoPagado, Is.EqualTo(0m));
@@ -58,7 +60,7 @@ public class TarjetaTipoTest
         var tarjeta = new Tarjeta(3000m, tipoNormal);
         var colectivo = new Colectivo("115");
 
-        var boleto = colectivo.pagarCon(tarjeta);
+        var boleto = colectivo.PagarCon(tarjeta, FechaHabil);
 
         Assert.That(boleto, Is.Not.Null);
         Assert.That(boleto!.MontoPagado, Is.EqualTo(Colectivo.TarifaBasica));
@@ -74,7 +76,7 @@ public class TarjetaTipoTest
         var colectivo = new Colectivo("122 Verde");
 
         decimal tarifaEsperada = Colectivo.TarifaBasica * 0.45m;
-        var boleto = colectivo.pagarCon(tarjeta);
+        var boleto = colectivo.PagarCon(tarjeta, FechaHabil);
 
         Assert.That(boleto, Is.Not.Null);
         Assert.That(boleto!.MontoPagado, Is.EqualTo(tarifaEsperada));
