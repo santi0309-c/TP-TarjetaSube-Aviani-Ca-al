@@ -40,14 +40,15 @@ public class TarjetaTest
     }
 
     [Test]
-    public void CargarSaldo_SuperandoLimiteMaximo_RetornaFalse()
+    public void CargarSaldo_SuperandoLimiteMaximo_AcreditaHastaMaximoYDejaExcedenteEnSaldoPendiente()
     {
-        var tarjeta = new Tarjeta(30000m);
+        var tarjeta = new Tarjeta(50000m);
 
-        bool resultado = tarjeta.CargarSaldo(15000m);
+        bool resultado = tarjeta.CargarSaldo(10000m);
 
-        Assert.That(resultado, Is.False);
-        Assert.That(tarjeta.Saldo, Is.EqualTo(30000m));
+        Assert.That(resultado, Is.True);
+        Assert.That(tarjeta.Saldo, Is.EqualTo(Tarjeta.LimiteSaldo));
+        Assert.That(tarjeta.SaldoPendiente, Is.EqualTo(4000m));
     }
 
     [Test]
