@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 public class Tarjeta
 {
-    public const decimal LimiteSaldo = 40000m;
+    public const decimal LimiteSaldo = 56000m;
     public const decimal LimiteNegativo = -2000m;
     public static readonly IReadOnlySet<decimal>
      CargasAceptadas = new HashSet<decimal>
@@ -15,6 +15,7 @@ public class Tarjeta
     public int Id { get; set;}
 
     public decimal Saldo { get; private set; }
+    public decimal SaldoPendiente { get; private set; } = 0m;
     public int ViajesPlus { get; private set; }
 
     public int TarjetaTipoId { get; set; }
@@ -44,7 +45,7 @@ public class Tarjeta
         }
         if (saldoInicial > LimiteSaldo)
         {
-            throw new ArgumentOutOfRangeException(nameof(saldoInicial), "El saldo inicial supera el límite máximo de $40.000 pesos.");
+            throw new ArgumentOutOfRangeException(nameof(saldoInicial), $"El saldo inicial supera el límite máximo de ${LimiteSaldo} pesos.");
         }
 
         Saldo = saldoInicial;
@@ -146,6 +147,32 @@ public class Tarjeta
 
     public decimal CalcularPrecio(decimal tarifaBase) => CalcularPrecio(tarifaBase, DateTime.Now);
 
+    public decimal AcreditarCarga()
+    {
+        if (SaldoPendiente <= 0 || Saldo >= LimiteSaldo)
+        {
+            return 0m;
+        }
+
+        decimal espacioDisponible = LimiteSaldo - Saldo;
+        decimal montoAAcreditar = Math.Min(SaldoPendiente, espacioDisponible);
+        Saldo += montoAAcreditar;
+        SaldoPendiente -= montoAAcreditar;
+        return montoAAcreditar;
+    }
+
+    public bool AcreditarCarga(decimal monto)
+    {
+        if (monto <= 0)
+        {
+            return false;
+        }
+
+        SaldoPendiente += monto;
+        AcreditarCarga();
+        return true;
+    }
+
     public bool CargarSaldo(decimal monto)
     {
         if (!CargasAceptadas.Contains(monto))
@@ -153,12 +180,7 @@ public class Tarjeta
             return false;
         }
 
-        if (Saldo + monto > LimiteSaldo)
-        {
-            return false;
-        }
-        Saldo += monto;
-        return true;
+        return AcreditarCarga(monto);
     }
 
     public bool DescontarSaldo(decimal monto)
@@ -183,6 +205,12 @@ public class Tarjeta
         {
             ViajesPlus++;
         }
+
+        if (SaldoPendiente > 0)
+        {
+            AcreditarCarga();
+        }
+
         return true;
     }
 }
