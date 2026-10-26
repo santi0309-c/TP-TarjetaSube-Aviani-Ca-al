@@ -78,11 +78,32 @@ public class TarjetaSubeDbContextTest
     }
 
     [Test]
+    public void DbContext_PermiteGuardarYConsultarColectivosInterurbanos()
+    {
+        using (var context = new TarjetaSubeDbContext(_options))
+        {
+            var interurbano = new ColectivoInterurbano("Rosario - Gálvez");
+            context.ColectivosInterurbanos.Add(interurbano);
+            context.SaveChanges();
+        }
+
+        using (var context = new TarjetaSubeDbContext(_options))
+        {
+            var interurbano = context.ColectivosInterurbanos.FirstOrDefault();
+            Assert.That(interurbano, Is.Not.Null);
+            Assert.That(interurbano!.Linea, Is.EqualTo("Rosario - Gálvez"));
+            Assert.That(interurbano.Tarifa, Is.EqualTo(3000m));
+            Assert.That(interurbano.EsInterurbano, Is.True);
+        }
+    }
+
+    [Test]
     public void DbContext_ConstructorSinParametros_SeInstanciaCorrectamente()
     {
         using var context = new TarjetaSubeDbContext();
         Assert.That(context.Tarjetas, Is.Not.Null);
         Assert.That(context.Colectivos, Is.Not.Null);
+        Assert.That(context.ColectivosInterurbanos, Is.Not.Null);
         Assert.That(context.Boletos, Is.Not.Null);
         Assert.That(context.TarjetasTipo, Is.Not.Null);
     }
