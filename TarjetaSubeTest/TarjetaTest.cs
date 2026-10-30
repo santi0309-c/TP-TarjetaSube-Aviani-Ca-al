@@ -25,6 +25,7 @@ public class TarjetaTest
         Assert.That(resultado, Is.True);
         Assert.That(tarjeta.Saldo, Is.EqualTo(monto));
     }
+
     [TestCase(1000)]
     [TestCase(6000)]
     [TestCase(50000)]
@@ -66,9 +67,8 @@ public class TarjetaTest
     public void DescontarSaldo_ConSaldoInsuficiente_RetornaFalseYNoModificaSaldo()
     {
         var tarjeta = new Tarjeta();
-        tarjeta.DescontarSaldo(1580m); // Queda en -1580m
+        tarjeta.DescontarSaldo(1580m);
 
-        // Intentar otro descuento superaría el límite negativo (-1580m - 1580m = -3160m < -2000m)
         bool resultado = tarjeta.DescontarSaldo(1580m);
 
         Assert.That(resultado, Is.False);
@@ -91,7 +91,7 @@ public class TarjetaTest
     public void DescontarSaldo_SuperandoLimiteNegativo_RetornaFalseYNoModificaSaldo()
     {
         var tarjeta = new Tarjeta();
-        tarjeta.DescontarSaldo(1580m); // Saldo en -1580m
+        tarjeta.DescontarSaldo(1580m);
 
         bool resultado = tarjeta.DescontarSaldo(1580m);
 
@@ -103,7 +103,7 @@ public class TarjetaTest
     public void CargarSaldo_ConDeudaNegativa_DescuentaDeudaYActualizaSaldoCorrectamente()
     {
         var tarjeta = new Tarjeta();
-        tarjeta.DescontarSaldo(1580m); // Saldo = -1580m
+        tarjeta.DescontarSaldo(1580m);
 
         bool resultado = tarjeta.CargarSaldo(2000m);
 

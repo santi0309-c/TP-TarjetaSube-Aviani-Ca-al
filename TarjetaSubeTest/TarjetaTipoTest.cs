@@ -6,7 +6,7 @@ using TarjetaSube;
 [TestFixture]
 public class TarjetaTipoTest
 {
-    private static readonly DateTime FechaHabil = new DateTime(2026, 10, 20, 10, 0, 0); // Martes 10:00 hs
+    private static readonly DateTime FechaHabil = new DateTime(2026, 10, 20, 10, 0, 0);
 
     [Test]
     public void FranquiciaCompleta_SiemprePuedePagar_InclusoConSaldoCero()
@@ -30,7 +30,7 @@ public class TarjetaTipoTest
         var tarjeta = new Tarjeta(2000m, tipoMedioBoleto) { Id = 20 };
         var colectivo = new Colectivo("102 Roja");
 
-        decimal tarifaEsperada = Colectivo.TarifaBasica / 2m; // 1075m
+        decimal tarifaEsperada = Colectivo.TarifaBasica / 2m;
         var boleto = colectivo.PagarCon(tarjeta, FechaHabil);
 
         Assert.That(boleto, Is.Not.Null);
@@ -70,7 +70,6 @@ public class TarjetaTipoTest
     [Test]
     public void AgregarNuevoTipo_SinCrearNuevaClase_CalculaPrecioYPermitePagar()
     {
-        // Se puede crear cualquier tipo nuevo dinámicamente sin subclases
         var tipoTarifaSocial = new TarjetaTipo("Tarifa Social", 0.45m);
         var tarjeta = new Tarjeta(2000m, tipoTarifaSocial);
         var colectivo = new Colectivo("122 Verde");
