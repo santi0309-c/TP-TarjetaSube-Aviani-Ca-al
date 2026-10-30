@@ -54,9 +54,8 @@ public class ColectivoTest
     {
         var colectivo = new Colectivo("102 Roja");
         var tarjeta = new Tarjeta(500m);
-        colectivo.pagarCon(tarjeta); // 1er viaje plus: saldo queda en 500m - 2150m = -1650m
+        colectivo.pagarCon(tarjeta);
 
-        // El segundo viaje requeriría -1650m - 2150m = -3800m < LimiteNegativo (-2000m)
         var segundoBoleto = colectivo.pagarCon(tarjeta);
 
         Assert.That(segundoBoleto, Is.Null);
@@ -83,14 +82,14 @@ public class ColectivoTest
 
         var primerBoleto = colectivo.pagarCon(tarjeta);
         Assert.That(primerBoleto, Is.Not.Null);
-        Assert.That(tarjeta.Saldo, Is.EqualTo(850m)); // 3000m - 2150m = 850m
+        Assert.That(tarjeta.Saldo, Is.EqualTo(850m));
 
         var segundoBoleto = colectivo.pagarCon(tarjeta);
         Assert.That(segundoBoleto, Is.Not.Null);
-        Assert.That(tarjeta.Saldo, Is.EqualTo(-1300m)); // 850m - 2150m = -1300m
+        Assert.That(tarjeta.Saldo, Is.EqualTo(-1300m));
 
         var tercerBoleto = colectivo.pagarCon(tarjeta);
-        Assert.That(tercerBoleto, Is.Null); // -1300m - 2150m = -3450m < -2000m
+        Assert.That(tercerBoleto, Is.Null);
         Assert.That(tarjeta.Saldo, Is.EqualTo(-1300m));
     }
 
@@ -102,12 +101,12 @@ public class ColectivoTest
 
         var primerBoleto = colectivo.PagarCon(tarjeta);
         Assert.That(primerBoleto, Is.Not.Null);
-        Assert.That(tarjeta.Saldo, Is.EqualTo(2850m)); // 5000m - 2150m = 2850m
+        Assert.That(tarjeta.Saldo, Is.EqualTo(2850m));
         Assert.That(primerBoleto!.SaldoRestante, Is.EqualTo(2850m));
 
         var segundoBoleto = colectivo.PagarCon(tarjeta);
         Assert.That(segundoBoleto, Is.Not.Null);
-        Assert.That(tarjeta.Saldo, Is.EqualTo(700m)); // 2850m - 2150m = 700m
+        Assert.That(tarjeta.Saldo, Is.EqualTo(700m));
         Assert.That(segundoBoleto!.SaldoRestante, Is.EqualTo(700m));
     }
 
