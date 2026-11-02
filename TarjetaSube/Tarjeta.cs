@@ -28,10 +28,18 @@ public class Tarjeta
 
     private readonly List<DateTime> _viajes = new();
     private readonly List<DateTime> _trasbordos = new();
+    private readonly HashSet<DateTime> _pagosBiciDiarios = new();
     private DateTime? _ultimoViaje;
 
     [NotMapped]
     public Boleto? UltimoBoleto { get; set; }
+
+    [NotMapped]
+    public decimal MultasBiciPendientes
+    {
+        get => MultasPendientes;
+        set => MultasPendientes = value;
+    }
 
     [NotMapped]
     public DateTime? UltimoViaje => _ultimoViaje ?? (_viajes.Count > 0 ? _viajes[^1] : null);
@@ -122,6 +130,16 @@ public class Tarjeta
 
     public void RegistrarViaje(DateTime fecha) => RegistrarViaje(fecha, false);
     public void RegistrarViaje() => RegistrarViaje(DateTime.Now, false);
+
+    public bool TieneTarifaBiciPagada(DateTime fecha)
+    {
+        return _pagosBiciDiarios.Contains(fecha.Date);
+    }
+
+    public void RegistrarPagoTarifaBici(DateTime fecha)
+    {
+        _pagosBiciDiarios.Add(fecha.Date);
+    }
 
     public decimal CalcularPrecio(decimal tarifaBase, DateTime fecha)
     {

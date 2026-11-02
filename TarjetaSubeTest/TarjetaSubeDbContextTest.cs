@@ -98,6 +98,24 @@ public class TarjetaSubeDbContextTest
     }
 
     [Test]
+    public void DbContext_PermiteGuardarYConsultarEstacionesBici()
+    {
+        using (var context = new TarjetaSubeDbContext(_options))
+        {
+            var estacion = new EstacionBici("Plaza Pringles");
+            context.EstacionesBici.Add(estacion);
+            context.SaveChanges();
+        }
+
+        using (var context = new TarjetaSubeDbContext(_options))
+        {
+            var estacion = context.EstacionesBici.FirstOrDefault();
+            Assert.That(estacion, Is.Not.Null);
+            Assert.That(estacion!.Nombre, Is.EqualTo("Plaza Pringles"));
+        }
+    }
+
+    [Test]
     public void DbContext_ConstructorSinParametros_SeInstanciaCorrectamente()
     {
         using var context = new TarjetaSubeDbContext();
@@ -106,5 +124,6 @@ public class TarjetaSubeDbContextTest
         Assert.That(context.ColectivosInterurbanos, Is.Not.Null);
         Assert.That(context.Boletos, Is.Not.Null);
         Assert.That(context.TarjetasTipo, Is.Not.Null);
+        Assert.That(context.EstacionesBici, Is.Not.Null);
     }
 }
