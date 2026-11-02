@@ -6,10 +6,6 @@ using TarjetaSube;
 [TestFixture]
 public class Iteracion4ParteATest
 {
-    // ═════════════════════════════════════════════════════════════════════════
-    // 1. ACTUALIZACIÓN DE TARIFAS BÁSICAS ($2150)
-    // ═════════════════════════════════════════════════════════════════════════
-
     [Test]
     public void TarifaBasica_AumentoCorrectamenteADosMilCientoCincuenta()
     {
@@ -33,24 +29,18 @@ public class Iteracion4ParteATest
         Assert.That(tarjeta.Saldo, Is.EqualTo(5000m - 2150m));
     }
 
-    // ═════════════════════════════════════════════════════════════════════════
-    // 2. BOLETO DE USO FRECUENTE (TARJETA NORMAL)
-    // ═════════════════════════════════════════════════════════════════════════
-
     [Test]
     public void UsoFrecuente_Viajes1Al29_PaganTarifaNormalSinDescuento()
     {
         var colectivo = new Colectivo("144");
-        var tarjeta = new Tarjeta(40000m); // Límite saldo
+        var tarjeta = new Tarjeta(40000m);
         var fechaBase = new DateTime(2026, 10, 1, 8, 0, 0);
 
-        // Realizamos los primeros 28 viajes (días hábiles 08:00)
         for (int i = 0; i < 28; i++)
         {
             tarjeta.RegistrarViaje(fechaBase.AddHours(i));
         }
 
-        // El viaje número 29 (índice 28 ya registrado)
         decimal tarifaViaje29 = tarjeta.CalcularPrecio(Colectivo.TarifaBasica, fechaBase);
         Assert.That(tarifaViaje29, Is.EqualTo(2150m), "El viaje 29 debe pagar tarifa normal completa ($2150)");
     }
@@ -61,25 +51,21 @@ public class Iteracion4ParteATest
         var tarjeta = new Tarjeta(40000m);
         var fechaBase = new DateTime(2026, 10, 1, 8, 0, 0);
 
-        // Simulamos 29 viajes previos en el mes
         for (int i = 0; i < 29; i++)
         {
             tarjeta.RegistrarViaje(fechaBase.AddHours(i));
         }
 
-        decimal tarifaEsperada20Desc = 2150m * 0.80m; // $1720
+        decimal tarifaEsperada20Desc = 2150m * 0.80m;
 
-        // Viaje 30
         decimal tarifaViaje30 = tarjeta.CalcularPrecio(Colectivo.TarifaBasica, fechaBase);
         Assert.That(tarifaViaje30, Is.EqualTo(tarifaEsperada20Desc), "El viaje 30 debe tener 20% de descuento ($1720)");
 
-        // Simulamos hasta llegar a 78 viajes previos (el siguiente será el 79)
         for (int i = 29; i < 78; i++)
         {
             tarjeta.RegistrarViaje(fechaBase.AddHours(i));
         }
 
-        // Viaje 79
         decimal tarifaViaje79 = tarjeta.CalcularPrecio(Colectivo.TarifaBasica, fechaBase);
         Assert.That(tarifaViaje79, Is.EqualTo(tarifaEsperada20Desc), "El viaje 79 debe tener 20% de descuento ($1720)");
     }
@@ -90,19 +76,16 @@ public class Iteracion4ParteATest
         var tarjeta = new Tarjeta(40000m);
         var fechaBase = new DateTime(2026, 10, 1, 8, 0, 0);
 
-        // Simulamos 79 viajes previos en el mes (el siguiente es el viaje 80)
         for (int i = 0; i < 79; i++)
         {
             tarjeta.RegistrarViaje(fechaBase.AddHours(i));
         }
 
-        decimal tarifaEsperada25Desc = 2150m * 0.75m; // $1612.50
+        decimal tarifaEsperada25Desc = 2150m * 0.75m;
 
-        // Viaje 80
         decimal tarifaViaje80 = tarjeta.CalcularPrecio(Colectivo.TarifaBasica, fechaBase);
         Assert.That(tarifaViaje80, Is.EqualTo(tarifaEsperada25Desc), "El viaje 80 debe tener 25% de descuento ($1612.50)");
 
-        // Viaje 81
         tarjeta.RegistrarViaje(fechaBase.AddHours(79));
         decimal tarifaViaje81 = tarjeta.CalcularPrecio(Colectivo.TarifaBasica, fechaBase);
         Assert.That(tarifaViaje81, Is.EqualTo(tarifaEsperada25Desc), "El viaje 81 en adelante también tiene 25% de descuento");
@@ -115,17 +98,14 @@ public class Iteracion4ParteATest
         var fechaOctubre = new DateTime(2026, 10, 20, 8, 0, 0);
         var fechaNoviembre = new DateTime(2026, 11, 1, 8, 0, 0);
 
-        // Simulamos 50 viajes en Octubre (alcanza el 20% de descuento)
         for (int i = 0; i < 50; i++)
         {
             tarjeta.RegistrarViaje(fechaOctubre.AddMinutes(i * 10));
         }
 
-        // En Octubre, paga con descuento
         decimal tarifaOctubre = tarjeta.CalcularPrecio(Colectivo.TarifaBasica, fechaOctubre);
         Assert.That(tarifaOctubre, Is.EqualTo(2150m * 0.80m));
 
-        // En Noviembre, la cuenta de ese mes arranca en 0 -> vuelve a pagar tarifa completa
         decimal tarifaNoviembre = tarjeta.CalcularPrecio(Colectivo.TarifaBasica, fechaNoviembre);
         Assert.That(tarifaNoviembre, Is.EqualTo(2150m), "Al cambiar de mes, el contador mensual se reinicia");
     }
@@ -137,20 +117,14 @@ public class Iteracion4ParteATest
         var tarjetaMedio = new Tarjeta(40000m, tipoMedio);
         var fecha = new DateTime(2026, 10, 20, 10, 0, 0);
 
-        // Registramos 50 viajes previos en el mes (en días anteriores)
         for (int i = 1; i <= 25; i++)
         {
             tarjetaMedio.RegistrarViaje(new DateTime(2026, 10, 1, 8, 0, 0).AddDays(i % 10).AddMinutes(i));
         }
 
-        // Hoy no realizó viajes todavía -> debe pagar la mitad ($1075), no el 20% de uso frecuente
         decimal tarifa = tarjetaMedio.CalcularPrecio(Colectivo.TarifaBasica, fecha);
         Assert.That(tarifa, Is.EqualTo(2150m / 2m), "Medio Boleto no debe utilizar la escala de uso frecuente");
     }
-
-    // ═════════════════════════════════════════════════════════════════════════
-    // 3. FRANJA HORARIA PARA FRANQUICIAS (LUNES A VIERNES DE 06:00 A 22:00)
-    // ═════════════════════════════════════════════════════════════════════════
 
     [Test]
     public void Franquicias_ViajarEnHorarioPermitido_LunesAViernesDe6A22_PermiteElViaje()
@@ -159,15 +133,12 @@ public class Iteracion4ParteATest
         var tipo = new TarjetaTipo(TarjetaTipo.NombreMedioBoleto, 0.5m);
         var tarjeta = new Tarjeta(5000m, tipo);
 
-        // Lunes exactamente a las 06:00:00 (límite inferior habilitado)
         var lunes6am = new DateTime(2026, 10, 19, 6, 0, 0);
         Assert.That(colectivo.PagarCon(tarjeta, lunes6am), Is.Not.Null, "Lunes a las 06:00 debe permitir viajar");
 
-        // Miércoles a las 14:30:00 (horario central)
         var miercolesTarde = new DateTime(2026, 10, 21, 14, 30, 0);
         Assert.That(colectivo.PagarCon(tarjeta, miercolesTarde), Is.Not.Null, "Miércoles a las 14:30 debe permitir viajar");
 
-        // Viernes exactamente a las 22:00:00 (límite superior habilitado)
         var viernes22pm = new DateTime(2026, 10, 23, 22, 0, 0);
         Assert.That(colectivo.PagarCon(tarjeta, viernes22pm), Is.Not.Null, "Viernes a las 22:00 debe permitir viajar");
     }
@@ -179,7 +150,6 @@ public class Iteracion4ParteATest
         var tipo = new TarjetaTipo(TarjetaTipo.NombreMedioBoleto, 0.5m);
         var tarjeta = new Tarjeta(5000m, tipo);
 
-        // Lunes a las 05:59:59 (1 segundo antes de las 6:00)
         var lunesMadrugada = new DateTime(2026, 10, 19, 5, 59, 59);
 
         var boleto = colectivo.PagarCon(tarjeta, lunesMadrugada);
@@ -195,7 +165,6 @@ public class Iteracion4ParteATest
         var tipo = new TarjetaTipo(TarjetaTipo.NombreFranquiciaCompleta, 0m);
         var tarjeta = new Tarjeta(5000m, tipo);
 
-        // Martes a las 22:00:01 (1 segundo después de las 22:00)
         var martesNoche = new DateTime(2026, 10, 20, 22, 0, 1);
 
         var boleto = colectivo.PagarCon(tarjeta, martesNoche);
@@ -210,13 +179,11 @@ public class Iteracion4ParteATest
         var tipo = new TarjetaTipo(TarjetaTipo.NombreMedioBoleto, 0.5m);
         var tarjeta = new Tarjeta(5000m, tipo);
 
-        // Sábado a las 12:00:00 (fin de semana)
         var sabado = new DateTime(2026, 10, 24, 12, 0, 0);
         Assert.That(sabado.DayOfWeek, Is.EqualTo(DayOfWeek.Saturday));
         var boletoSabado = colectivo.PagarCon(tarjeta, sabado);
         Assert.That(boletoSabado, Is.Null, "Las franquicias no pueden utilizarse los sábados");
 
-        // Domingo a las 15:00:00 (fin de semana)
         var domingo = new DateTime(2026, 10, 25, 15, 0, 0);
         Assert.That(domingo.DayOfWeek, Is.EqualTo(DayOfWeek.Sunday));
         var boletoDomingo = colectivo.PagarCon(tarjeta, domingo);
@@ -227,14 +194,12 @@ public class Iteracion4ParteATest
     public void TarjetaNormal_PuedeViajarCualquierDiaYHorario_SinRestriccion()
     {
         var colectivo = new Colectivo("K");
-        var tarjeta = new Tarjeta(10000m); // Normal
+        var tarjeta = new Tarjeta(10000m);
 
-        // Sábado a las 23:30 (fin de semana fuera de horario)
         var sabadoNoche = new DateTime(2026, 10, 24, 23, 30, 0);
         var boletoSabado = colectivo.PagarCon(tarjeta, sabadoNoche);
         Assert.That(boletoSabado, Is.Not.Null, "La tarjeta normal puede viajar un sábado a la noche");
 
-        // Domingo a las 03:00 de la madrugada
         var domingoMadrugada = new DateTime(2026, 10, 25, 3, 0, 0);
         var boletoDomingo = colectivo.PagarCon(tarjeta, domingoMadrugada);
         Assert.That(boletoDomingo, Is.Not.Null, "La tarjeta normal puede viajar un domingo de madrugada");

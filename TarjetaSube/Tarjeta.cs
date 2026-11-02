@@ -16,6 +16,7 @@ public class Tarjeta
 
     public decimal Saldo { get; private set; }
     public decimal SaldoPendiente { get; private set; } = 0m;
+    public decimal MultasPendientes { get; private set; } = 0m;
     public int ViajesPlus { get; private set; }
 
     public int TarjetaTipoId { get; set; }
@@ -34,7 +35,11 @@ public class Tarjeta
     public Boleto? UltimoBoleto { get; set; }
 
     [NotMapped]
-    public decimal MultasBiciPendientes { get; set; } = 0m;
+    public decimal MultasBiciPendientes
+    {
+        get => MultasPendientes;
+        set => MultasPendientes = value;
+    }
 
     [NotMapped]
     public DateTime? UltimoViaje => _ultimoViaje ?? (_viajes.Count > 0 ? _viajes[^1] : null);
@@ -242,5 +247,18 @@ public class Tarjeta
         }
 
         return true;
+    }
+
+    public void AgregarMulta(decimal monto)
+    {
+        if (monto > 0)
+        {
+            MultasPendientes += monto;
+        }
+    }
+
+    public void LimpiarMultas()
+    {
+        MultasPendientes = 0m;
     }
 }
