@@ -1,6 +1,6 @@
 namespace TarjetaSube;
 
-public class Colectivo
+public class Colectivo : ITransporte
 {
     public const decimal TarifaBasica = 2150m;
     public const decimal TarifaInterurbana = 3000m;

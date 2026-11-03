@@ -2,7 +2,7 @@ namespace TarjetaSube;
 
 using System.ComponentModel.DataAnnotations.Schema;
 
-public class Tarjeta
+public class Tarjeta : ICobrable
 {
     public const decimal LimiteSaldo = 56000m;
     public const decimal LimiteNegativo = -2000m;

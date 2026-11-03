@@ -1,6 +1,6 @@
 namespace TarjetaSube;
 
-public class EstacionBici
+public class EstacionBici : IServicioBici
 {
     public const decimal TarifaServicio = 2418.75m;
     public const decimal TarifaDiaria = 2418.75m;
