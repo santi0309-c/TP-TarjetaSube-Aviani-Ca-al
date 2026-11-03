@@ -9,6 +9,8 @@ public class EstacionBici : IServicioBici
     public const decimal MultaExceso = 1250m;
     public static readonly TimeSpan TiempoMaximoUso = TimeSpan.FromHours(1);
 
+    private readonly ITimeProvider _timeProvider;
+
     public int Id { get; set; }
     public string Nombre { get; set; } = string.Empty;
 
@@ -17,13 +19,18 @@ public class EstacionBici : IServicioBici
     public bool EstaEnUso => _fechaRetiro.HasValue;
     public DateTime? FechaRetiro => _fechaRetiro;
 
-    public EstacionBici()
+    public EstacionBici() : this(string.Empty, null)
     {
     }
 
-    public EstacionBici(string nombre)
+    public EstacionBici(string nombre) : this(nombre, null)
+    {
+    }
+
+    public EstacionBici(string nombre, ITimeProvider? timeProvider)
     {
         Nombre = nombre;
+        _timeProvider = timeProvider ?? new SystemTimeProvider();
     }
 
     public bool YaPagoTarifaDiaria(Tarjeta tarjeta, DateTime fecha)
@@ -77,10 +84,10 @@ public class EstacionBici : IServicioBici
         return true;
     }
 
-    public bool RetirarBicicleta(Tarjeta tarjeta) => RetirarBicicleta(tarjeta, DateTime.Now);
+    public bool RetirarBicicleta(Tarjeta tarjeta) => RetirarBicicleta(tarjeta, _timeProvider.Now);
 
     // Alias para compatibilidad con tests existentes
-    public bool RetirarBici(Tarjeta tarjeta, DateTime? fechaRetiro = null) => RetirarBicicleta(tarjeta, fechaRetiro ?? DateTime.Now);
+    public bool RetirarBici(Tarjeta tarjeta, DateTime? fechaRetiro = null) => RetirarBicicleta(tarjeta, fechaRetiro ?? _timeProvider.Now);
 
     public bool DevolverBicicleta(Tarjeta tarjeta, DateTime fechaDevolucion)
     {
@@ -100,5 +107,5 @@ public class EstacionBici : IServicioBici
         return true;
     }
 
-    public bool DevolverBicicleta(Tarjeta tarjeta) => DevolverBicicleta(tarjeta, DateTime.Now);
+    public bool DevolverBicicleta(Tarjeta tarjeta) => DevolverBicicleta(tarjeta, _timeProvider.Now);
 }

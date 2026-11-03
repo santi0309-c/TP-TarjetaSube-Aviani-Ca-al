@@ -5,24 +5,30 @@ public class Colectivo : ITransporte
     public const decimal TarifaBasica = 2150m;
     public const decimal TarifaInterurbana = 3000m;
 
+    private readonly ITimeProvider _timeProvider;
+
     public int Id { get; set; }
     public string Linea { get; set; } = string.Empty;
     public bool EsInterurbano { get; set; } = false;
     public virtual decimal Tarifa => EsInterurbano ? TarifaInterurbana : TarifaBasica;
 
-    public Colectivo()
+    public Colectivo() : this(string.Empty, false, null)
     {
     }
 
-    public Colectivo(string linea)
+    public Colectivo(string linea) : this(linea, false, null)
     {
-        Linea = linea;
     }
 
-    public Colectivo(string linea, bool esInterurbano)
+    public Colectivo(string linea, bool esInterurbano) : this(linea, esInterurbano, null)
+    {
+    }
+
+    public Colectivo(string linea, bool esInterurbano, ITimeProvider? timeProvider)
     {
         Linea = linea;
         EsInterurbano = esInterurbano;
+        _timeProvider = timeProvider ?? new SystemTimeProvider();
     }
 
     public Boleto? PagarCon(Tarjeta tarjeta, DateTime? fechaViaje = null)
@@ -32,7 +38,7 @@ public class Colectivo : ITransporte
             return null;
         }
 
-        DateTime fecha = fechaViaje ?? DateTime.Now;
+        DateTime fecha = fechaViaje ?? _timeProvider.Now;
 
         if (!tarjeta.PuedeViajar(fecha, Linea))
         {
