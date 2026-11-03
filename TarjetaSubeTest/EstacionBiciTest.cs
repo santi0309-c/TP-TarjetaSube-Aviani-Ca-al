@@ -385,6 +385,18 @@ public class EstacionBiciTest
     }
 
     [Test]
+    public void DevolverBicicleta_A60MinutosYUnSegundo_AplicaMulta()
+    {
+        var tarjeta = new Tarjeta(5000m);
+        var fechaRetiro = new DateTime(2026, 10, 28, 10, 0, 0);
+
+        _estacion.RetirarBicicleta(tarjeta, fechaRetiro);
+        _estacion.DevolverBicicleta(tarjeta, fechaRetiro.AddHours(1).AddSeconds(1));
+
+        Assert.That(tarjeta.MultasPendientes, Is.EqualTo(EstacionBici.MultaExceso));
+    }
+
+    [Test]
     public void DevolverBicicleta_SinRetiroActivo_RetornaFalse()
     {
         var tarjeta = new Tarjeta(5000m);
@@ -430,5 +442,81 @@ public class EstacionBiciTest
     {
         bool exito = _estacion.RetirarBici(null!);
         Assert.That(exito, Is.False);
+    }
+
+    [Test]
+    public void ObtenerMultasPendientes_ConTarjetaValida_RetornaMultas()
+    {
+        var tarjeta = new Tarjeta(5000m);
+        tarjeta.AgregarMulta(1250m);
+        Assert.That(_estacion.ObtenerMultasPendientes(tarjeta), Is.EqualTo(1250m));
+    }
+
+    [Test]
+    public void ObtenerMultasPendientes_ConTarjetaNull_RetornaCero()
+    {
+        Assert.That(_estacion.ObtenerMultasPendientes(null!), Is.EqualTo(0m));
+    }
+
+    [Test]
+    public void YaPagoTarifaDiaria_ConTarjetaNull_RetornaFalse()
+    {
+        Assert.That(_estacion.YaPagoTarifaDiaria(null!, DateTime.Now), Is.False);
+    }
+
+    [Test]
+    public void Constructor_PorDefecto_InicializaNombreVacioYEstadoInactivo()
+    {
+        var estacion = new EstacionBici();
+        Assert.That(estacion.Nombre, Is.Empty);
+        Assert.That(estacion.EstaEnUso, Is.False);
+        Assert.That(estacion.FechaRetiro, Is.Null);
+    }
+
+    [Test]
+    public void Constructor_ConNombre_AsignaNombreCorrectamente()
+    {
+        var estacion = new EstacionBici("Plaza San Martín");
+        Assert.That(estacion.Nombre, Is.EqualTo("Plaza San Martín"));
+    }
+
+    [Test]
+    public void FlujoMultiplesEstaciones_CobroDiarioYDevolucionesConMulta()
+    {
+        var estacionA = new EstacionBici("Estación Rosario Norte");
+        var estacionB = new EstacionBici("Estación Facultad de Ingeniería");
+        var tarjeta = new Tarjeta(10000m);
+        var fechaDia1 = new DateTime(2026, 10, 28, 9, 0, 0);
+
+        // Retiro en Estacion A día 1: cobra tarifa diaria
+        bool retiro1 = estacionA.RetirarBicicleta(tarjeta, fechaDia1);
+        Assert.That(retiro1, Is.True);
+        Assert.That(estacionA.EstaEnUso, Is.True);
+        Assert.That(tarjeta.Saldo, Is.EqualTo(10000m - EstacionBici.TarifaDiaria));
+
+        // Devolución en Estacion A a los 30 min (sin multa)
+        bool dev1 = estacionA.DevolverBicicleta(tarjeta, fechaDia1.AddMinutes(30));
+        Assert.That(dev1, Is.True);
+        Assert.That(estacionA.EstaEnUso, Is.False);
+        Assert.That(tarjeta.MultasPendientes, Is.EqualTo(0m));
+
+        // Retiro en Estacion B mismo día: tarifa diaria $0
+        bool retiro2 = estacionB.RetirarBicicleta(tarjeta, fechaDia1.AddHours(3));
+        Assert.That(retiro2, Is.True);
+        Assert.That(tarjeta.Saldo, Is.EqualTo(10000m - EstacionBici.TarifaDiaria));
+
+        // Devolución en Estacion B a los 75 min: genera multa $1250
+        bool dev2 = estacionB.DevolverBicicleta(tarjeta, fechaDia1.AddHours(3).AddMinutes(75));
+        Assert.That(dev2, Is.True);
+        Assert.That(estacionB.EstaEnUso, Is.False);
+        Assert.That(tarjeta.MultasPendientes, Is.EqualTo(EstacionBici.MultaExceso));
+
+        // Retiro al día siguiente en Estacion A: cobra tarifa diaria + multa pendiente
+        var fechaDia2 = fechaDia1.AddDays(1);
+        decimal saldoAntes = tarjeta.Saldo;
+        bool retiro3 = estacionA.RetirarBicicleta(tarjeta, fechaDia2);
+        Assert.That(retiro3, Is.True);
+        Assert.That(tarjeta.MultasPendientes, Is.EqualTo(0m));
+        Assert.That(tarjeta.Saldo, Is.EqualTo(saldoAntes - EstacionBici.TarifaDiaria - EstacionBici.MultaExceso));
     }
 }
