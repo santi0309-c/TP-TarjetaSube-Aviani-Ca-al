@@ -35,13 +35,6 @@ public class Tarjeta
     public Boleto? UltimoBoleto { get; set; }
 
     [NotMapped]
-    public decimal MultasBiciPendientes
-    {
-        get => MultasPendientes;
-        set => MultasPendientes = value;
-    }
-
-    [NotMapped]
     public DateTime? UltimoViaje => _ultimoViaje ?? (_viajes.Count > 0 ? _viajes[^1] : null);
 
     [NotMapped]
