@@ -61,6 +61,84 @@ public class BoletoTest
     }
 
     [Test]
+    public void Boleto_PermiteConocerTodosLosDatosRequeridos_MediantePropiedadesYMetodos()
+    {
+        var tipo = new TarjetaTipo(TarjetaTipo.NombreNormal, 1m);
+        var tarjeta = new Tarjeta(5000m, tipo) { Id = 42 };
+        var colectivo = new Colectivo("144 Negra");
+        var fecha = new DateTime(2026, 10, 20, 14, 30, 0);
+
+        var boleto = colectivo.PagarCon(tarjeta, fecha);
+
+        Assert.That(boleto, Is.Not.Null);
+        Assert.That(boleto!.Fecha, Is.EqualTo(fecha));
+        Assert.That(boleto.ObtenerFecha(), Is.EqualTo(fecha));
+        Assert.That(boleto.TipoTarjeta, Is.EqualTo(TarjetaTipo.NombreNormal));
+        Assert.That(boleto.ObtenerTipoTarjeta(), Is.EqualTo(TarjetaTipo.NombreNormal));
+        Assert.That(boleto.Linea, Is.EqualTo("144 Negra"));
+        Assert.That(boleto.ObtenerLinea(), Is.EqualTo("144 Negra"));
+        Assert.That(boleto.TotalAbonado, Is.EqualTo(Colectivo.TarifaBasica));
+        Assert.That(boleto.MontoPagado, Is.EqualTo(Colectivo.TarifaBasica));
+        Assert.That(boleto.ObtenerTotalAbonado(), Is.EqualTo(Colectivo.TarifaBasica));
+
+        decimal saldoEsperado = 5000m - Colectivo.TarifaBasica;
+        Assert.That(boleto.Saldo, Is.EqualTo(saldoEsperado));
+        Assert.That(boleto.SaldoRestante, Is.EqualTo(saldoEsperado));
+        Assert.That(boleto.ObtenerSaldo(), Is.EqualTo(saldoEsperado));
+        Assert.That(boleto.TarjetaId, Is.EqualTo(42));
+        Assert.That(boleto.ObtenerTarjetaId(), Is.EqualTo(42));
+    }
+
+    [Test]
+    public void Boleto_PosiblesTiposDeTarjeta_GeneranBoletosCorrectos()
+    {
+        var colectivo = new Colectivo("102 Roja");
+        var fecha = new DateTime(2026, 10, 20, 10, 0, 0);
+
+        var tarjetaNormal = new Tarjeta(5000m, new TarjetaTipo(TarjetaTipo.NombreNormal, 1m)) { Id = 1 };
+        var boletoNormal = colectivo.PagarCon(tarjetaNormal, fecha);
+        Assert.That(boletoNormal!.ObtenerTipoTarjeta(), Is.EqualTo(TarjetaTipo.NombreNormal));
+        Assert.That(boletoNormal.ObtenerTotalAbonado(), Is.EqualTo(Colectivo.TarifaBasica));
+
+        var tarjetaMedio = new Tarjeta(5000m, new TarjetaTipo(TarjetaTipo.NombreMedioBoleto, 0.5m)) { Id = 2 };
+        var boletoMedio = colectivo.PagarCon(tarjetaMedio, fecha);
+        Assert.That(boletoMedio!.ObtenerTipoTarjeta(), Is.EqualTo(TarjetaTipo.NombreMedioBoleto));
+        Assert.That(boletoMedio.ObtenerTotalAbonado(), Is.EqualTo(Colectivo.TarifaBasica / 2m));
+
+        var tarjetaFranquicia = new Tarjeta(5000m, new TarjetaTipo(TarjetaTipo.NombreFranquiciaCompleta, 0m)) { Id = 3 };
+        var boletoFranquicia = colectivo.PagarCon(tarjetaFranquicia, fecha);
+        Assert.That(boletoFranquicia!.ObtenerTipoTarjeta(), Is.EqualTo(TarjetaTipo.NombreFranquiciaCompleta));
+        Assert.That(boletoFranquicia.ObtenerTotalAbonado(), Is.EqualTo(0m));
+
+        var tarjetaGratuito = new Tarjeta(5000m, new TarjetaTipo(TarjetaTipo.NombreBoletoGratuito, 0m)) { Id = 4 };
+        var boletoGratuito = colectivo.PagarCon(tarjetaGratuito, fecha);
+        Assert.That(boletoGratuito!.ObtenerTipoTarjeta(), Is.EqualTo(TarjetaTipo.NombreBoletoGratuito));
+        Assert.That(boletoGratuito.ObtenerTotalAbonado(), Is.EqualTo(0m));
+    }
+
+    [Test]
+    public void Boleto_ConSaldoNegativoPrevio_InformaTotalAbonadoSuperiorAlCostoDeSuViaje()
+    {
+        var tipoMedio = new TarjetaTipo(TarjetaTipo.NombreMedioBoleto, 0.5m);
+        var tarjeta = new Tarjeta(1000m, tipoMedio) { Id = 99 };
+        var colectivo = new Colectivo("115");
+        var fecha1 = new DateTime(2026, 10, 20, 8, 0, 0);
+        var fecha2 = new DateTime(2026, 10, 20, 12, 0, 0);
+
+        var primerBoleto = colectivo.PagarCon(tarjeta, fecha1);
+        Assert.That(primerBoleto, Is.Not.Null);
+        Assert.That(tarjeta.Saldo, Is.EqualTo(-75m));
+        Assert.That(primerBoleto!.TotalAbonado, Is.EqualTo(Colectivo.TarifaBasica / 2m));
+
+        var segundoBoleto = colectivo.PagarCon(tarjeta, fecha2);
+
+        Assert.That(segundoBoleto, Is.Not.Null);
+        Assert.That(tarjeta.Saldo, Is.EqualTo(-1150m));
+        Assert.That(segundoBoleto!.TotalAbonado, Is.EqualTo(1150m));
+        Assert.That(segundoBoleto.TotalAbonado, Is.GreaterThan(Colectivo.TarifaBasica / 2m));
+    }
+
+    [Test]
     public void ObtenerPrimerBoletoVentana_BoletoSinAnterior_RetornaSiMismo()
     {
         var boleto = new Boleto("102", 2150m, 2850m, 1, FechaBaseLunes);
