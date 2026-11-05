@@ -85,9 +85,11 @@ public class EstacionBici : IServicioBici
     }
 
     public bool RetirarBicicleta(Tarjeta tarjeta) => RetirarBicicleta(tarjeta, _timeProvider.Now);
-
-    // Alias para compatibilidad con tests existentes
     public bool RetirarBici(Tarjeta tarjeta, DateTime? fechaRetiro = null) => RetirarBicicleta(tarjeta, fechaRetiro ?? _timeProvider.Now);
+
+    public bool retirarBicicleta(Tarjeta tarjeta) => RetirarBicicleta(tarjeta);
+    public bool retirarBicicleta(Tarjeta tarjeta, DateTime fechaRetiro) => RetirarBicicleta(tarjeta, fechaRetiro);
+    public bool retirarBici(Tarjeta tarjeta, DateTime? fechaRetiro = null) => RetirarBici(tarjeta, fechaRetiro);
 
     public bool DevolverBicicleta(Tarjeta tarjeta, DateTime fechaDevolucion)
     {
@@ -108,4 +110,9 @@ public class EstacionBici : IServicioBici
     }
 
     public bool DevolverBicicleta(Tarjeta tarjeta) => DevolverBicicleta(tarjeta, _timeProvider.Now);
+    public bool DevolverBici(Tarjeta tarjeta, DateTime? fechaDevolucion = null) => DevolverBicicleta(tarjeta, fechaDevolucion ?? _timeProvider.Now);
+
+    public bool devolverBicicleta(Tarjeta tarjeta) => DevolverBicicleta(tarjeta);
+    public bool devolverBicicleta(Tarjeta tarjeta, DateTime fechaDevolucion) => DevolverBicicleta(tarjeta, fechaDevolucion);
+    public bool devolverBici(Tarjeta tarjeta, DateTime? fechaDevolucion = null) => DevolverBici(tarjeta, fechaDevolucion);
 }

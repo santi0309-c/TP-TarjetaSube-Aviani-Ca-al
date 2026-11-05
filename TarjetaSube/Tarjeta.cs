@@ -16,7 +16,16 @@ public class Tarjeta : ICobrable
     public decimal Saldo { get; private set; }
     public decimal SaldoPendiente { get; private set; } = 0m;
     public decimal MultasPendientes { get; private set; } = 0m;
+
+    [NotMapped]
+    public decimal MultasBiciPendientes
+    {
+        get => MultasPendientes;
+        set => MultasPendientes = value;
+    }
+
     public int ViajesPlus { get; private set; }
+    public int ContadorViajesPlus => ViajesPlus;
 
     public int TarjetaTipoId { get; set; }
 
@@ -158,6 +167,9 @@ public class Tarjeta : ICobrable
         return true;
     }
 
+    public decimal acreditarCarga() => AcreditarCarga();
+    public bool acreditarCarga(decimal monto) => AcreditarCarga(monto);
+
     public bool CargarSaldo(decimal monto)
     {
         if (!CargasAceptadas.Contains(monto))
@@ -167,6 +179,10 @@ public class Tarjeta : ICobrable
 
         return AcreditarCarga(monto);
     }
+
+    public bool Cargar(decimal monto) => CargarSaldo(monto);
+    public bool cargar(decimal monto) => CargarSaldo(monto);
+    public bool cargarSaldo(decimal monto) => CargarSaldo(monto);
 
     public bool DescontarSaldo(decimal monto)
     {
@@ -198,6 +214,15 @@ public class Tarjeta : ICobrable
 
         return true;
     }
+
+    public bool Descontar(decimal monto) => DescontarSaldo(monto);
+    public bool descontar(decimal monto) => DescontarSaldo(monto);
+    public bool descontarSaldo(decimal monto) => DescontarSaldo(monto);
+
+    public decimal ObtenerSaldo() => Saldo;
+    public decimal obtenerSaldo() => Saldo;
+    public decimal ObtenerSaldoPendiente() => SaldoPendiente;
+    public decimal obtenerSaldoPendiente() => SaldoPendiente;
 
     public void AgregarMulta(decimal monto)
     {

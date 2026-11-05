@@ -20,10 +20,6 @@ public class EstacionBiciTest
         _tipoFranquiciaCompleta = new TarjetaTipo(TarjetaTipo.NombreFranquiciaCompleta, 0m);
     }
 
-    // ═════════════════════════════════════════════════════════════════════════
-    // 1. RETIRO EXITOSO Y COBRO DE TARIFA FIJA DE $2418,75
-    // ═════════════════════════════════════════════════════════════════════════
-
     [Test]
     public void TarifaServicio_EsDosMilCuatrocientosDieciochoConSetentaYCinco()
     {
@@ -67,10 +63,6 @@ public class EstacionBiciTest
         Assert.That(tarjeta.Saldo, Is.EqualTo(5000m - 2418.75m));
     }
 
-    // ═════════════════════════════════════════════════════════════════════════
-    // 2. CONTROL DE COBRO ÚNICO POR DÍA
-    // ═════════════════════════════════════════════════════════════════════════
-
     [Test]
     public void RetirarBici_MultiplesVecesEnElMismoDia_SoloCobraTarifaUnaVez()
     {
@@ -83,7 +75,6 @@ public class EstacionBiciTest
         Assert.That(primerExito, Is.True);
         Assert.That(tarjeta.Saldo, Is.EqualTo(10000m - 2418.75m));
 
-        // Devolvemos la bici antes del segundo retiro
         _estacion.DevolverBicicleta(tarjeta, primerRetiro.AddMinutes(30));
 
         bool segundoExito = _estacion.RetirarBici(tarjeta, segundoRetiro);
@@ -129,10 +120,6 @@ public class EstacionBiciTest
         Assert.That(_estacion.YaPagoTarifaDiaria(tarjeta, hoy), Is.True);
         Assert.That(_estacion.YaPagoTarifaDiaria(tarjeta, manana), Is.False);
     }
-
-    // ═════════════════════════════════════════════════════════════════════════
-    // 3. SIN DESCUENTOS POR FRANQUICIA (TARIFA COMPLETA PARA TODAS)
-    // ═════════════════════════════════════════════════════════════════════════
 
     [Test]
     public void RetirarBici_TarjetaMedioBoleto_PagaTarifaCompletaSinDescuento()
@@ -181,10 +168,6 @@ public class EstacionBiciTest
         Assert.That(exito, Is.True);
         Assert.That(tarjeta.Saldo, Is.EqualTo(5000m - 2418.75m));
     }
-
-    // ═════════════════════════════════════════════════════════════════════════
-    // 4. RECHAZO DE RETIRO POR FALTA DE SALDO (Y LÍMITE NEGATIVO)
-    // ═════════════════════════════════════════════════════════════════════════
 
     [Test]
     public void RetirarBici_SinSaldoSuficienteSuperandoLimiteNegativo_RechazaElRetiro()
@@ -250,10 +233,6 @@ public class EstacionBiciTest
         Assert.That(tarjeta.Saldo, Is.EqualTo(-500m));
     }
 
-    // ═════════════════════════════════════════════════════════════════════════
-    // 5. SOPORTE DE MULTAS ACUMULADAS AL RETIRAR BICI
-    // ═════════════════════════════════════════════════════════════════════════
-
     [Test]
     public void RetirarBici_ConUnaMultaAcumulada_CobraTarifaMasMulta()
     {
@@ -297,7 +276,6 @@ public class EstacionBiciTest
         _estacion.RetirarBici(tarjeta, fecha1);
         Assert.That(tarjeta.Saldo, Is.EqualTo(5000m - 2418.75m));
 
-        // Devolvemos la bici con exceso de tiempo → genera multa
         _estacion.DevolverBicicleta(tarjeta, fecha1.AddMinutes(75));
         Assert.That(tarjeta.MultasPendientes, Is.EqualTo(1250m));
 
@@ -322,10 +300,6 @@ public class EstacionBiciTest
         Assert.That(_estacion.ObtenerMultasPendientes(tarjeta), Is.EqualTo(1250m));
     }
 
-    // ═════════════════════════════════════════════════════════════════════════
-    // 6. INTEGRACIÓN CON SALDO PENDIENTE Y ACREDITACIÓN AUTOMÁTICA
-    // ═════════════════════════════════════════════════════════════════════════
-
     [Test]
     public void RetirarBici_ConSaldoPendiente_AcreditaSaldoAutomaticamenteAlCobrar()
     {
@@ -342,10 +316,6 @@ public class EstacionBiciTest
         Assert.That(tarjeta.Saldo, Is.EqualTo(56000m));
         Assert.That(tarjeta.SaldoPendiente, Is.EqualTo(5000m - 2418.75m));
     }
-
-    // ═════════════════════════════════════════════════════════════════════════
-    // 7. DEVOLUCIÓN Y CONTROL DE TIEMPO (1 HORA MÁXIMO)
-    // ═════════════════════════════════════════════════════════════════════════
 
     [Test]
     public void DevolverBicicleta_DentroDeUnaHora_NoGeneraMulta()
@@ -419,10 +389,6 @@ public class EstacionBiciTest
         Assert.That(_estacion.FechaRetiro, Is.EqualTo(fecha));
     }
 
-    // ═════════════════════════════════════════════════════════════════════════
-    // 8. COMPATIBILIDAD CON SUBCLASE MiBiciTuBici Y VALIDACIONES
-    // ═════════════════════════════════════════════════════════════════════════
-
     [Test]
     public void MiBiciTuBici_InstanciaHeredada_FuncionaExactamenteIgual()
     {
@@ -488,35 +454,62 @@ public class EstacionBiciTest
         var tarjeta = new Tarjeta(10000m);
         var fechaDia1 = new DateTime(2026, 10, 28, 9, 0, 0);
 
-        // Retiro en Estacion A día 1: cobra tarifa diaria
         bool retiro1 = estacionA.RetirarBicicleta(tarjeta, fechaDia1);
         Assert.That(retiro1, Is.True);
         Assert.That(estacionA.EstaEnUso, Is.True);
         Assert.That(tarjeta.Saldo, Is.EqualTo(10000m - EstacionBici.TarifaDiaria));
 
-        // Devolución en Estacion A a los 30 min (sin multa)
         bool dev1 = estacionA.DevolverBicicleta(tarjeta, fechaDia1.AddMinutes(30));
         Assert.That(dev1, Is.True);
         Assert.That(estacionA.EstaEnUso, Is.False);
         Assert.That(tarjeta.MultasPendientes, Is.EqualTo(0m));
 
-        // Retiro en Estacion B mismo día: tarifa diaria $0
         bool retiro2 = estacionB.RetirarBicicleta(tarjeta, fechaDia1.AddHours(3));
         Assert.That(retiro2, Is.True);
         Assert.That(tarjeta.Saldo, Is.EqualTo(10000m - EstacionBici.TarifaDiaria));
 
-        // Devolución en Estacion B a los 75 min: genera multa $1250
         bool dev2 = estacionB.DevolverBicicleta(tarjeta, fechaDia1.AddHours(3).AddMinutes(75));
         Assert.That(dev2, Is.True);
         Assert.That(estacionB.EstaEnUso, Is.False);
         Assert.That(tarjeta.MultasPendientes, Is.EqualTo(EstacionBici.MultaExceso));
 
-        // Retiro al día siguiente en Estacion A: cobra tarifa diaria + multa pendiente
         var fechaDia2 = fechaDia1.AddDays(1);
         decimal saldoAntes = tarjeta.Saldo;
         bool retiro3 = estacionA.RetirarBicicleta(tarjeta, fechaDia2);
         Assert.That(retiro3, Is.True);
         Assert.That(tarjeta.MultasPendientes, Is.EqualTo(0m));
         Assert.That(tarjeta.Saldo, Is.EqualTo(saldoAntes - EstacionBici.TarifaDiaria - EstacionBici.MultaExceso));
+    }
+
+    [Test]
+    public void EstacionBicicletas_ClaseCompatible_FuncionaIdenticamente()
+    {
+        var estacion = new EstacionBicicletas("Estación Plaza López");
+        var tarjeta = new Tarjeta(5000m);
+        var fecha = new DateTime(2026, 10, 28, 10, 0, 0);
+
+        bool retiro = estacion.RetirarBicicleta(tarjeta, fecha);
+        Assert.That(retiro, Is.True);
+        Assert.That(tarjeta.Saldo, Is.EqualTo(5000m - EstacionBici.TarifaDiaria));
+        Assert.That(estacion.EstaEnUso, Is.True);
+
+        bool dev = estacion.DevolverBici(tarjeta, fecha.AddMinutes(30));
+        Assert.That(dev, Is.True);
+        Assert.That(estacion.EstaEnUso, Is.False);
+    }
+
+    [Test]
+    public void MetodosAlias_MinusculasYDevolverBici_OperanCorrectamente()
+    {
+        var estacion = new EstacionBici("Estación Oroño");
+        var tarjeta = new Tarjeta(5000m);
+        var fecha = new DateTime(2026, 10, 28, 9, 0, 0);
+
+        bool retiro = estacion.retirarBicicleta(tarjeta, fecha);
+        Assert.That(retiro, Is.True);
+
+        bool devolucion = estacion.devolverBici(tarjeta, fecha.AddMinutes(40));
+        Assert.That(devolucion, Is.True);
+        Assert.That(tarjeta.MultasPendientes, Is.EqualTo(0m));
     }
 }

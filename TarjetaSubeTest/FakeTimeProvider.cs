@@ -2,9 +2,6 @@ namespace TarjetaSubeTest;
 
 using TarjetaSube;
 
-/// <summary>
-/// Doble de prueba (Test Double / Fake) que implementa ITimeProvider para simular el paso del tiempo en tests unitarios (DIP).
-/// </summary>
 public class FakeTimeProvider : ITimeProvider
 {
     public DateTime Now { get; set; }

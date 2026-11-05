@@ -697,4 +697,25 @@ public class TarjetaTest
         Assert.That(tarjeta.HistorialViajes, Has.Count.EqualTo(1));
         Assert.That(tarjeta.HistorialViajes[0], Is.EqualTo(FechaBaseLunes));
     }
+
+    [Test]
+    public void MetodosAlias_CargarDescontarYGetters_OperanCorrectamente()
+    {
+        var tarjeta = new Tarjeta();
+
+        bool carga = tarjeta.Cargar(5000m);
+        Assert.That(carga, Is.True);
+        Assert.That(tarjeta.ObtenerSaldo(), Is.EqualTo(5000m));
+        Assert.That(tarjeta.obtenerSaldo(), Is.EqualTo(5000m));
+
+        bool descuento = tarjeta.Descontar(2000m);
+        Assert.That(descuento, Is.True);
+        Assert.That(tarjeta.Saldo, Is.EqualTo(3000m));
+
+        tarjeta.MultasBiciPendientes = 1250m;
+        Assert.That(tarjeta.MultasPendientes, Is.EqualTo(1250m));
+        Assert.That(tarjeta.MultasBiciPendientes, Is.EqualTo(1250m));
+
+        Assert.That(tarjeta.ContadorViajesPlus, Is.EqualTo(tarjeta.ViajesPlus));
+    }
 }

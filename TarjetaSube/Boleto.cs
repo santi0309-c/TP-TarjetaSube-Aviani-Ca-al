@@ -2,9 +2,6 @@ namespace TarjetaSube;
 
 using System.ComponentModel.DataAnnotations.Schema;
 
-/// <summary>
-/// Representa el comprobante de viaje emitido tras un pago en colectivo.
-/// </summary>
 public class Boleto
 {
     public int Id { get; set; }
@@ -41,7 +38,7 @@ public class Boleto
         BoletoAnterior = boletoAnterior;
     }
 
-    // Métodos para cumplir con el requerimiento explícito de la Iteración 3
+    // Métodos para cumplir con el requerimiento de la Iteración 3
     public DateTime ObtenerFecha() => Fecha;
     public string ObtenerTipoTarjeta() => TipoTarjeta;
     public string ObtenerLinea() => Linea;
@@ -50,9 +47,6 @@ public class Boleto
     public int ObtenerTarjetaId() => TarjetaId;
     public bool ObtenerEsTrasbordo() => EsTrasbordo;
 
-    /// <summary>
-    /// Recorre la cadena de boletos anteriores para encontrar el primer boleto que originó la ventana de trasbordo.
-    /// </summary>
     public Boleto ObtenerPrimerBoletoVentana()
     {
         Boleto actual = this;
@@ -63,9 +57,6 @@ public class Boleto
         return actual;
     }
 
-    /// <summary>
-    /// Verifica si una línea determinada ya fue utilizada dentro de la ventana de trasbordo activa.
-    /// </summary>
     public bool ContieneLineaEnVentana(string linea)
     {
         Boleto? actual = this;
@@ -84,12 +75,6 @@ public class Boleto
         return false;
     }
 
-    /// <summary>
-    /// Determina si un nuevo viaje califica como trasbordo gratuito según las reglas de negocio:
-    /// - Línea distinta a la actual y no repetida en la ventana.
-    /// - Lunes a sábado entre 07:00 y 22:00.
-    /// - Ventana máxima de 60 minutos desde el primer boleto pagado.
-    /// </summary>
     public bool EsTrasbordoValido(string nuevaLinea, DateTime fechaNueva)
     {
         if (string.Equals(Linea, nuevaLinea, StringComparison.OrdinalIgnoreCase))

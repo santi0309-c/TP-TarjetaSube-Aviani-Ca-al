@@ -9,8 +9,10 @@ public class TarjetaTipo
 
     public static TarjetaTipo Normal => new(NombreNormal, 1.0m);
     public static TarjetaTipo MedioBoleto => new(NombreMedioBoleto, 0.5m);
+    public static TarjetaTipo MedioBoletoEstudiantil => MedioBoleto;
     public static TarjetaTipo FranquiciaCompleta => new(NombreFranquiciaCompleta, 0.0m);
     public static TarjetaTipo BoletoGratuito => new(NombreBoletoGratuito, 0.0m);
+    public static TarjetaTipo BoletoGratuitoEstudiantil => BoletoGratuito;
 
     public int Id { get; set; }
     public string Nombre { get; set; } = string.Empty;
@@ -34,10 +36,33 @@ public class TarjetaTipo
 
     public TarjetaTipo() { }
 
+    public TarjetaTipo(string nombre) : this(nombre, ObtenerMultiplicadorPorDefecto(nombre))
+    {
+    }
+
     public TarjetaTipo(string nombre, decimal multiplicador)
     {
         Nombre = nombre;
         Multiplicador = multiplicador;
+    }
+
+    private static decimal ObtenerMultiplicadorPorDefecto(string nombre)
+    {
+        if (string.IsNullOrEmpty(nombre) || nombre.Equals(NombreNormal, StringComparison.OrdinalIgnoreCase))
+        {
+            return 1.0m;
+        }
+        if (nombre.Contains("Medio", StringComparison.OrdinalIgnoreCase))
+        {
+            return 0.5m;
+        }
+        if (nombre.Contains("Gratuito", StringComparison.OrdinalIgnoreCase) ||
+            nombre.Contains("Completa", StringComparison.OrdinalIgnoreCase) ||
+            nombre.Contains("Educativo", StringComparison.OrdinalIgnoreCase))
+        {
+            return 0.0m;
+        }
+        return 1.0m;
     }
 
     public decimal CalcularPrecio(decimal tarifaBase)

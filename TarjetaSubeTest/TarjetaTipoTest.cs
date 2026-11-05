@@ -200,4 +200,31 @@ public class TarjetaTipoTest
         Assert.That(tipo.CumpleFranjaHoraria(new DateTime(2026, 10, 19, 14, 30, 0)), Is.True);
         Assert.That(tipo.CumpleFranjaHoraria(new DateTime(2026, 10, 19, 22, 0, 0)), Is.True);
     }
+
+    [Test]
+    public void Constructor_ConSoloNombre_AsignaMultiplicadorPorDefectoSegunTipo()
+    {
+        var normal = new TarjetaTipo("Normal");
+        Assert.That(normal.Multiplicador, Is.EqualTo(1.0m));
+        Assert.That(normal.EsNormal, Is.True);
+
+        var medio = new TarjetaTipo("Medio Boleto Estudiantil");
+        Assert.That(medio.Multiplicador, Is.EqualTo(0.5m));
+        Assert.That(medio.EsMedioBoleto, Is.True);
+
+        var gratuito = new TarjetaTipo("Boleto Gratuito Estudiantil");
+        Assert.That(gratuito.Multiplicador, Is.EqualTo(0.0m));
+        Assert.That(gratuito.EsFranquiciaCompleta, Is.True);
+
+        var franquicia = new TarjetaTipo("Franquicia Completa");
+        Assert.That(franquicia.Multiplicador, Is.EqualTo(0.0m));
+        Assert.That(franquicia.EsFranquiciaCompleta, Is.True);
+    }
+
+    [Test]
+    public void PropiedadesEstaticasAlias_RetornanMismaInstancia()
+    {
+        Assert.That(TarjetaTipo.MedioBoletoEstudiantil.Nombre, Is.EqualTo(TarjetaTipo.NombreMedioBoleto));
+        Assert.That(TarjetaTipo.BoletoGratuitoEstudiantil.Nombre, Is.EqualTo(TarjetaTipo.NombreBoletoGratuito));
+    }
 }

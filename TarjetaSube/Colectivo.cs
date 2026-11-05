@@ -80,4 +80,9 @@ public class Colectivo : ITransporte
 
     public Boleto? pagarCon(Tarjeta tarjeta) => PagarCon(tarjeta);
     public Boleto? pagarCon(Tarjeta tarjeta, DateTime fecha) => PagarCon(tarjeta, fecha);
+
+    public Boleto? Pagar(Tarjeta tarjeta) => PagarCon(tarjeta);
+    public Boleto? pagar(Tarjeta tarjeta) => PagarCon(tarjeta);
+    public Boleto? Pagar(Tarjeta tarjeta, DateTime fecha) => PagarCon(tarjeta, fecha);
+    public Boleto? pagar(Tarjeta tarjeta, DateTime fecha) => PagarCon(tarjeta, fecha);
 }
